@@ -3,6 +3,7 @@
 use App\Http\Controllers\Controller;
 use Princealikhan\Mautic\Models\MauticConsumer;
 use Princealikhan\Mautic\Facades\Mautic;
+use GuzzleHttp\Client;
 
     /**
      * Created by PhpStorm.
@@ -29,9 +30,9 @@ use Princealikhan\Mautic\Facades\Mautic;
 
         }
 
-        public function callback(Request $request)
+        public function callback()
         {
-            $mauticURL = config('mautic.connections.main.baseUrl').'oauth/v2/token';
+            $mauticURL = config('mautic.connections.main.baseUrl').'/oauth/v2/token';
             $config = config('mautic.connections.main');
 
                 $client = new Client();
@@ -43,14 +44,20 @@ use Princealikhan\Mautic\Facades\Mautic;
                             'client_secret' => $config['clientSecret'],
                             'redirect_uri'  => $config['callback'],
                             'grant_type'    => 'authorization_code',
-                            'code'          =>  $request->input('code')
+                            'code'          =>  $_GET['code']
                         ]));
                     $responseBodyAsString = $response->getBody();
                     $responseBodyAsString = json_decode($responseBodyAsString,true);
-                    return  MauticConsumer::create($accessTokenData);
+
+                    return MauticConsumer::create([
+                        'access_token'  => $responseBodyAsString['access_token'],
+                        'expires'       => $responseBodyAsString['expires_in'],
+                        'token_type'    => $responseBodyAsString['token_type'],
+                        'refresh_token' => $responseBodyAsString['refresh_token']
+                    ]);
+
                 }
                 catch (ClientException $e) {
-                    var_dump($e);
                    return $exceptionResponse = $e->getResponse();
                 }
         }
