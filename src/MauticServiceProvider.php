@@ -15,8 +15,9 @@ class MauticServiceProvider extends ServiceProvider {
 		// Publish Configuration File to base Path.
         $this->publishes([
             __DIR__.'/config/mautic.php' => base_path('config/mautic.php'),
+            __DIR__ . '/migrations' => $this->app->databasePath() . '/migrations'
         ]);
-	}
+    }
 
     /**
      * Register the service provider.
@@ -25,8 +26,9 @@ class MauticServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-        $this->registerFactory($this->app);
-        $this->registerManager($this->app);
+        $this->registerFactory();
+        $this->registerManager();
+        $this->registerRoutes();
     }
 
     /**
@@ -36,13 +38,13 @@ class MauticServiceProvider extends ServiceProvider {
      *
      * @return void
      */
-    protected function registerFactory(Application $app)
+    protected function registerFactory()
     {
-        $app->singleton('mautic.factory', function () {
+        $this->app->singleton('mautic.factory', function () {
             return new Factories\MauticFactory();
         });
 
-        $app->alias('mautic.factory', 'Princealikhan\Mautic\Factories\MauticFactory');
+        $this->app->alias('mautic.factory', 'Princealikhan\Mautic\Factories\MauticFactory');
     }
 
     /**
@@ -52,17 +54,30 @@ class MauticServiceProvider extends ServiceProvider {
      *
      * @return void
      */
-    protected function registerManager(Application $app)
+    protected function registerManager()
     {
-        $app->singleton('mautic', function ($app) {
+        $app = $this->app;
+        $this->app->singleton('mautic', function ($app) {
             $config = $app['config'];
             $factory = $app['mautic.factory'];
 
             return new Mautic($config, $factory);
         });
 
-        $app->alias('mautic', 'Princealikhan\Mautic\Mautic');
+        $this->app->alias('mautic', 'Princealikhan\Mautic\Mautic');
     }
+
+    /**
+     * Get the routes services provided by the provider.
+     *
+     * @return routes
+     */
+    protected function registerRoutes() {
+        $this->app->group(['namespace' => 'Princealikhan\Mautic\Http\Controllers', "prefix" => "mautic"], function () {
+            require __DIR__.'/Http/routes.php';
+        });
+    }
+
 
     /**
      * Get the services provided by the provider.

@@ -1,5 +1,5 @@
 {
-    "name": "princealikhan/laravel-mautic-api",
+    "name": "princealikhan/lumen-mautic-api",
     "description": "Free and Open Source Marketing Automation API",
     "license": "MIT",
     "keywords": ["mautic","laravel","lumen","cron","princealikhan","api","sync"],
