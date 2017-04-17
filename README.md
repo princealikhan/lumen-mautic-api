@@ -11,6 +11,16 @@ Mautic's API.  You can also choose which OAuth2 protocol to use here.  After sav
 (located in the Settings menu) and create a new client.  Enter the callback/redirect URI that the request will be sent from.  Click Apply
 then copy the Client ID and Client Secret to the application that will be using the API.
 
+
+## Register Service Provider in App\Providers\AppServiceProvider.php
+```
+$this->app->singleton('mautic',function ($app){
+    $app->config('mautic');
+    return $app->loadComponent('mautic','Princealikhan\Mautic\MauticServiceProvider','mautic');
+});
+```
+
+
 ## Registering Application
 In order to register you application with mautic ping this url this is one time registration.
 ```url
