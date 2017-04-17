@@ -8,4 +8,5 @@
 */
 
 
-$this->app->get('application/register','MauticController@initiateApplication');
+$this->app->get('mautic/application/register','MauticController@initiateApplication');
+$this->app->post('mautic/application/callback','MauticController@callback');
