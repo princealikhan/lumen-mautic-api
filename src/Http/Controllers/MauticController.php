@@ -5,7 +5,7 @@ use Princealikhan\Mautic\Models\MauticConsumer;
 use Princealikhan\Mautic\Facades\Mautic;
 use GuzzleHttp\Client;
 
-    /**
+/**
      * Created by PhpStorm.
      * User: prince
      * Date: 26/11/16
@@ -19,7 +19,6 @@ use GuzzleHttp\Client;
          */
         public function initiateApplication()
         {
-
             $consumer = MauticConsumer::count();
 
             if($consumer == 0){
@@ -35,31 +34,36 @@ use GuzzleHttp\Client;
             $mauticURL = config('mautic.connections.main.baseUrl').'/oauth/v2/token';
             $config = config('mautic.connections.main');
 
+            if(isset($_GET['code'])) {
+
                 $client = new Client();
 
                 try {
-                    $response = $client->request('POST',$mauticURL,array(
+                    $response = $client->request('POST', $mauticURL, array(
                         'form_params' => [
-                            'client_id'     => $config['clientKey'],
+                            'client_id' => $config['clientKey'],
                             'client_secret' => $config['clientSecret'],
-                            'redirect_uri'  => $config['callback'],
-                            'grant_type'    => 'authorization_code',
-                            'code'          =>  $_GET['code']
+                            'grant_type' => 'authorization_code',
+                            'redirect_uri' => $config['callback'],
+                            'code' => $_GET['code']
                         ]));
                     $responseBodyAsString = $response->getBody();
-                    $responseBodyAsString = json_decode($responseBodyAsString,true);
+                    $responseBodyAsString = json_decode($responseBodyAsString, true);
 
                     return MauticConsumer::create([
-                        'access_token'  => $responseBodyAsString['access_token'],
-                        'expires'       => $responseBodyAsString['expires_in'],
-                        'token_type'    => $responseBodyAsString['token_type'],
+                        'access_token' => $responseBodyAsString['access_token'],
+                        'expires' => time() + $responseBodyAsString['expires_in'],
+                        'token_type' => $responseBodyAsString['token_type'],
                         'refresh_token' => $responseBodyAsString['refresh_token']
                     ]);
 
+                } catch (ClientException $e) {
+                    return $exceptionResponse = $e->getResponse();
                 }
-                catch (ClientException $e) {
-                   return $exceptionResponse = $e->getResponse();
-                }
+
+            }else{
+                return 'Response Code is missing';
+            }
         }
 
     }
