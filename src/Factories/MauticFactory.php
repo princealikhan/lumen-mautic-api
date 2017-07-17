@@ -83,21 +83,33 @@ class MauticFactory
      */
     protected function getClient(array $setting)
     {
-        session_name("mauticOAuth");
+//        session_name("mauticOAuth");
         session_start();
 
         // Initiate the auth object
         $initAuth = new ApiAuth();
         $auth     = $initAuth->newAuth($setting);
 
-        // Initiate process for obtaining an access token; this will redirect the user to the authorize endpoint and/or set the tokens when the user is redirected back after granting authorization
 
-        if ($auth->validateAccessToken())
-        {
-            if ($auth->accessTokenUpdated()) {
-                $accessTokenData = $auth->getAccessTokenData();
-                return  MauticConsumer::create($accessTokenData);
+        try {
+            if ($auth->validateAccessToken()) {
+
+                // Obtain the access token returned; call accessTokenUpdated() to catch if the token was updated via a
+                // refresh token
+
+                // $accessTokenData will have the following keys:
+                // For OAuth1.0a: access_token, access_token_secret, expires
+                // For OAuth2: access_token, expires, token_type, refresh_token
+
+                if ($auth->accessTokenUpdated()) {
+                    $accessTokenData = $auth->getAccessTokenData();
+
+                    //store access token data however you want
+                }
             }
+        } catch (Exception $e) {
+            \Log::info($e);
+            // Do Error handling
         }
 
     }
