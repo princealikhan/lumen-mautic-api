@@ -16,7 +16,7 @@
             "illuminate/support": "5.0.*|5.1.*|5.2.*||5.3.*|5.4.*",
             "mautic/api-library":"2.6.*",
             "graham-campbell/manager":"2.5.*",
-            "guzzlehttp/guzzle": "6.2.*",
+            "guzzlehttp/guzzle": "6.2.*"
         },
     "autoload": {
         "psr-4": {
